@@ -51,9 +51,9 @@ def login_user(email: str, password: str):
         token_type="bearer"
     )
 
-def logout_user():
+def logout_user(token: TokenData):
     supabase.auth.sign_out()
-    
+
 # 👤 Get Profile
 def get_user_profile(user: TokenData) -> dict:
     # Step 1: Fetch profile from 'profiles' table

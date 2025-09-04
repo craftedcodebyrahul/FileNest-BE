@@ -9,6 +9,10 @@ from .routers import auth_router
 from .dependencies import get_current_user
 from .schemas import TokenData
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi import status
 
 app = FastAPI()
 
@@ -55,12 +59,12 @@ app.include_router(file_routes.router, prefix="/file", tags=["File"])
 app.include_router(auth_router.router, prefix="/auth", tags=["Auth"])
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (Angular, Postman, etc.)
+    allow_origins=["http://localhost:4200"],  # instead of "*"
     allow_credentials=True,
-    allow_methods=["*"],   # Allow all methods: GET, POST, PUT, DELETE
-    allow_headers=["*"],   # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],  # <-- important for Angular
 )
-
 @app.get("/")
 def read_root():
     return {"message": "Welcome to FileNest - Smart File Organizers"}
@@ -94,3 +98,19 @@ async def get_current_user_info(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": str(exc.detail)},
+        headers={"Access-Control-Allow-Origin": "http://localhost:4200"}  # force add CORS
+    )
+
+@app.exception_handler(Exception)
+async def custom_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": f"Internal Server Error: {str(exc)}"},
+        headers={"Access-Control-Allow-Origin": "http://localhost:4200"}  # force add CORS
+    )

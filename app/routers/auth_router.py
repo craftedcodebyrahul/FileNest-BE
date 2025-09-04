@@ -36,7 +36,7 @@ async def login(request: LoginRequest):
 @router.post("/logout")
 async def logout(token: TokenData = Depends(get_current_user)):
     try:
-        logout_user()
+        logout_user(token)
         return {"message": "Logged out successfully"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -81,5 +81,13 @@ async def forgot_password(data: ForgotPasswordRequest):
 async def reset_password(data: ResetPasswordRequest):
     try:
         return reset_user_password(data)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/logout")
+async def logout(token: TokenData = Depends(get_current_user)):
+    try:
+        logout_user(token)
+        return {"message": "Logged out successfully"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

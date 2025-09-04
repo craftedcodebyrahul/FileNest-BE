@@ -4,11 +4,14 @@ import jwt
 from jwt import PyJWTError
 from .config import get_settings
 from .schemas import TokenData
-
+from supabase import create_client
+ 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+settings = get_settings()
+supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
-    settings = get_settings()
+   
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -16,11 +19,14 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     
     try:
+         
         payload = jwt.decode(
             token, 
             settings.JWT_SECRET, 
             algorithms=[settings.ALGORITHM]
         )
+        # auth_user = supabase.auth.get_user(payload.get("session_id"))
+
         user_id: str = payload.get("sub")
         session_id: str = payload.get("session_id")
         if not user_id or not session_id:
