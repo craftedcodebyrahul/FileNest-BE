@@ -59,7 +59,7 @@ app.include_router(file_routes.router, prefix="/file", tags=["File"])
 app.include_router(auth_router.router, prefix="/auth", tags=["Auth"])
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],  # instead of "*"
+    allow_origins=["*"],  # instead of "*"
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -104,7 +104,7 @@ async def custom_http_exception_handler(request: Request, exc: StarletteHTTPExce
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": str(exc.detail)},
-        headers={"Access-Control-Allow-Origin": "http://localhost:4200"}  # force add CORS
+        
     )
 
 @app.exception_handler(Exception)
@@ -112,5 +112,5 @@ async def custom_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": f"Internal Server Error: {str(exc)}"},
-        headers={"Access-Control-Allow-Origin": "http://localhost:4200"}  # force add CORS
+       
     )
