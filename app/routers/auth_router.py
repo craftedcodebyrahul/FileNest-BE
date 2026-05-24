@@ -29,8 +29,8 @@ async def signup(user: UserCreate):
 async def login(request: LoginRequest):
     try:
         return login_user(request.email, request.password)
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Login failed: {str(e)}")
 
 # ✅ Logout
 @router.post("/logout")

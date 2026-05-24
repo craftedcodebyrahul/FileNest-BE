@@ -22,7 +22,14 @@ def create_access_token(user_id: str, session_id: str):
 def signup_user(user: UserCreate):
     auth_response = supabase.auth.sign_up({
         "email": user.email,
-        "password": user.password
+        "password": user.password,
+        "options": {
+            "data": {
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "phone_number": user.phone_number
+            }   
+        }
     })
     
     user_id = auth_response.user.id
@@ -42,7 +49,8 @@ def login_user(email: str, password: str):
         "email": email,
         "password": password
     })
-    print(json.dumps(response.json()))
+    # response is an AuthResponse object. Use __dict__ or str() for debugging.
+    print(f"Supabase Response: {response}")
     return Token(
         access_token=create_access_token(
             user_id=response.user.id,
